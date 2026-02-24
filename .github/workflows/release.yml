@@ -1,28 +1,57 @@
-on: workflow_dispatch
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - master
+      - main
 
 jobs:
-  upload_build:
-    name: Upload Build Artifact
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
-      - name: Get version from tag
-        id: get_version
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
         run: |
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
               version=${GITHUB_REF#refs/tags/v}
           else
-              version=0.0.0.${GITHUB_REF#refs/heads/}
+              version=0.0.0.${GITHUB_SHA8:-$(git rev-parse --short HEAD)}
           fi
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
 
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - name: set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
 
-      - name: Upload Artifact
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew assembleRelease
+
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build-v${{ steps.get_version.outputs.version }}
+          name: BCR-v${{ steps.version.outputs.version }}
           path: |
-            path/to/your/output/files/*
+            app/build/outputs/apk/release/*.apk
             RELEASE.md
           retention-days: 5
