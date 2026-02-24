@@ -36,7 +36,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease -Pandroid.injected.signing.store.file="" -Pandroid.injected.signing.store.password="" -Pandroid.injected.signing.key.alias="" -Pandroid.injected.signing.key.password=""
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
