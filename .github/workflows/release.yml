@@ -1,10 +1,5 @@
-on:
-  push:
-    # Uncomment to test against a branch
-    #branches:
-    #  - ci
-    tags:
-      - 'v*'
+on: workflow_dispatch
+
 jobs:
   create_release:
     name: Create Github release
