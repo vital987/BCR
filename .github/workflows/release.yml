@@ -1,6 +1,16 @@
 name: Build Android APK
 
 on:
+  push:
+    branches:
+      - master
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -36,13 +46,13 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew assembleRelease -Pandroid.injected.signing.store.file="" -Pandroid.injected.signing.store.password="" -Pandroid.injected.signing.key.alias="" -Pandroid.injected.signing.key.password=""
+        run: ./gradlew assembleDebug
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BCR-v${{ steps.version.outputs.version }}
           path: |
-            app/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/debug/*.apk
             RELEASE.md
           retention-days: 5
