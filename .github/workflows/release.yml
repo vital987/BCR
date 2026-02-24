@@ -1,11 +1,9 @@
 on: workflow_dispatch
 
 jobs:
-  create_release:
-    name: Create Github release
+  upload_build:
+    name: Upload Build Artifact
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Get version from tag
         id: get_version
@@ -18,12 +16,13 @@ jobs:
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
 
       - name: Check out repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@v4
 
-      - name: Create release
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          name: Version ${{ steps.get_version.outputs.version }}
-          body_path: RELEASE.md
-          draft: true
+          name: build-v${{ steps.get_version.outputs.version }}
+          path: |
+            path/to/your/output/files/*
+            RELEASE.md
+          retention-days: 5
